@@ -11,14 +11,14 @@ pub fn read_and_parse_input_data(year: i32, day: i32, cookie: &str, split_over: 
     let mut file_path = data_path.clone();
     file_path.push(format!("y{}d{}.txt", year, day));
 
-    let raw_puzzle_data: String;
+    let mut raw_puzzle_data: String;
     if !data_path.exists()
     {
         fs::create_dir(&data_path)?;
         fs::write(&file_path, "")?; // create file to store puzzle input in
     }
 
-    if !fs::read_to_string(&file_path)?.is_empty() || cookie == "err"
+    if !fs::read_to_string(&file_path)?.is_empty() || cookie == "err" || fs::metadata(&file_path)?.len() != 0
     {
         println!("Reading from file.");
         raw_puzzle_data = fs::read_to_string(&file_path)?;
@@ -39,9 +39,9 @@ pub fn read_and_parse_input_data(year: i32, day: i32, cookie: &str, split_over: 
         }
         fs::write(&file_path, &raw_puzzle_data)?;
     }
-
-    let puzzle_data: Vec<String> = raw_puzzle_data.split(split_over).map(|s| s.to_owned()).collect();
-    
+    raw_puzzle_data = raw_puzzle_data.trim().to_owned();
+    let mut puzzle_data: Vec<String> = raw_puzzle_data.split(split_over).map(|s| s.to_owned()).collect();
+    puzzle_data.remove(puzzle_data.len() - 1);
     Ok(puzzle_data)
 
 }
