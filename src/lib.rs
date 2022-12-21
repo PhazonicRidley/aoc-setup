@@ -39,7 +39,6 @@ pub fn read_and_parse_input_data(year: i32, day: i32, cookie: &str, split_over: 
         }
         fs::write(&file_path, &raw_puzzle_data)?;
     }
-    raw_puzzle_data = raw_puzzle_data.trim().to_owned();
     let mut puzzle_data: Vec<String> = raw_puzzle_data.split(split_over).map(|s| s.to_owned()).collect();
     puzzle_data.remove(puzzle_data.len() - 1);
     Ok(puzzle_data)
