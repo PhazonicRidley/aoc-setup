@@ -3,25 +3,27 @@ use core::fmt;
 use std::error::Error;
 use std::env;
 use std::fs;
-use std::path::PathBuf;
 
 
-fn get_cookie(exe_path: &PathBuf) -> Result<String, AocError>
-{
-    let env_cookie = env::var("AOC_TOKEN");
-    if env_cookie.is_err() 
+#[cfg(test)]
+mod tests {
+    use crate::read_and_parse_input_data;
+
+    #[test]
+    fn it_works()
     {
-        let mut token_path = exe_path.clone();
-        token_path.push("token.txt");
-        return match fs::read_to_string(token_path)
-        {
-            Ok(c) => Ok(c),
-            Err(_) => Err(AocError::new("Unable to obtain advent of code cookie for authentication from the file token.txt or the environment variable AOC_TOKEN in the root of your project!"))
-        };
+        assert!(2 + 2 == 4);
     }
-    
-    return Ok(env_cookie.unwrap());
 
+    #[test]
+    fn get_cookie()
+    {
+        let result = read_and_parse_input_data(2022, 1, "\n\n");
+        match result {
+            Ok(data) => println!("{:?}", data),
+            Err(e) => panic!("Got an error: {:?}", e)
+        }
+    }
 }
 
 pub fn read_and_parse_input_data(year: i32, day: i32, split_over: &str) -> Result<Vec<String>, Box<dyn Error>> {
@@ -31,25 +33,25 @@ pub fn read_and_parse_input_data(year: i32, day: i32, split_over: &str) -> Resul
     let mut file_path = data_path.clone();
     file_path.push(format!("y{}d{}.txt", year, day));
     // check for env var, if it doesn't exist, then read file.
-    let cookie = match env::var("AOC_TOKEN") 
+    let cookie = match env::var("AOC_TOKEN")
     {
         Ok(c) => c,
         Err(_) => {
             println!("Environment variable $AOC_TOKEN doesn't exist, trying from file token.txt in root");
             let mut token_path = exe_path;
             token_path.push("token.txt");
-            fs::read_to_string(token_path)?
+            fs::read_to_string(token_path).unwrap_or(String::from("err"))
         }
     };
 
-    let mut raw_puzzle_data: String;
+    let raw_puzzle_data: String;
     if !data_path.exists()
     {
-        fs::create_dir(&data_path)?;
+        fs::create_dir_all(&data_path)?;
         fs::write(&file_path, "")?; // create file to store puzzle input in
     }
 
-    if !fs::read_to_string(&file_path)?.is_empty() || cookie == "err" || fs::metadata(&file_path)?.len() != 0
+    if !fs::read_to_string(&file_path)?.is_empty() || cookie.as_str() == "err" || fs::metadata(&file_path)?.len() != 0
     {
         println!("Reading from file.");
         raw_puzzle_data = fs::read_to_string(&file_path)?;
@@ -94,6 +96,6 @@ impl fmt::Display for AocError
 {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result
     {
-        write!(f, "An AOC error has occurred.")
+        write!(f, "An AOC error has occurred: {:?} ", self.err_string)
     }
 }
