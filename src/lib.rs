@@ -7,7 +7,6 @@ use std::fs;
 
 #[cfg(test)]
 mod tests {
-    use crate::read_and_parse_input_data;
 
     #[test]
     fn it_works()
@@ -18,12 +17,24 @@ mod tests {
     #[test]
     fn get_cookie()
     {
-        let result = read_and_parse_input_data(2022, 1, "\n\n");
+        let result = super::read_and_parse_input_data(2022, 1, "\n\n");
         match result {
             Ok(data) => println!("{:?}", data),
             Err(e) => panic!("Got an error: {:?}", e)
         }
     }
+
+}
+
+
+pub fn get_puzzle_data(year: i32, day: i32, split_over: &str) -> Vec<String>
+{
+    let res = match read_and_parse_input_data(year, day, split_over) {
+        Ok(data) => data,
+        Err(e) => panic!("The following error has happened: {}", e.to_string())
+    };
+
+    return res
 }
 
 pub fn read_and_parse_input_data(year: i32, day: i32, split_over: &str) -> Result<Vec<String>, Box<dyn Error>> {
